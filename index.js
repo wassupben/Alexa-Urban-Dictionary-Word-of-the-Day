@@ -10,12 +10,12 @@ var meaning = "";
 var example = "";
 
 
-cheerioReq("http://www.urbandictionary.com/", (err, $) => {
-    word = ($(".word").first().text());
-    meaning = ($(".meaning").first().text());
-    example = ($(".example").first().text());
-    // => Word of the day
-});
+scrapeUD();
+
+
+if(word == "" || meaning == "" || example == "") {
+  scrapeUD();
+}
 
 
 exports.handler = function(event, context, callback) {
@@ -58,3 +58,12 @@ var handlers = {
         this.emit(':tell', 'Goodbye!');
     }
 };
+
+function scrapeUD() {
+  cheerioReq("http://www.urbandictionary.com/", (err, $) => {
+      word = ($(".word").first().text());
+      meaning = ($(".meaning").first().text());
+      example = ($(".example").first().text());
+      // => Word of the day
+  });
+}
