@@ -10,12 +10,6 @@ var meaning = "";
 var example = "";
 
 
-scrapeUD();
-
-
-if(word == "" || meaning == "" || example == "") {
-  scrapeUD();
-}
 
 
 exports.handler = function(event, context, callback) {
@@ -35,16 +29,25 @@ var handlers = {
     },
     'GetWOTD': function () {
 
-      if(word == "" || meaning == "" || example == "") {
-        speechOutput = "Sorry, something went wrong, please try again.";
-      }
-      else {
-        var speechOutput = "The word of the day is " + word + "." +
-        meaning + "... " +
-        " You could use " + word + " in a sentence by saying " + example;
-      }
+      cheerioReq("http://www.urbandictionary.com/", (err, $) => {
+          word = ($(".word").first().text());
+          meaning = ($(".meaning").first().text());
+          example = ($(".example").first().text());
+          // => Word of the day
 
-        this.emit(':tell', speechOutput, SKILL_NAME)
+          if(word == "" || meaning == "" || example == "") {
+            speechOutput = "Sorry, something went wrong, please try again.";
+          }
+          else {
+            var speechOutput = "The word of the day is " + word + "." +
+            meaning + "... " +
+            " You could use " + word + " in a sentence by saying " + example;
+          }
+
+            this.emit(':tell', speechOutput, SKILL_NAME);
+      });
+
+
     },
     'AMAZON.HelpIntent': function () {
         var speechOutput = "You can ask me what the Urban Dictionary word of the day is";
@@ -58,12 +61,3 @@ var handlers = {
         this.emit(':tell', 'Goodbye!');
     }
 };
-
-function scrapeUD() {
-  cheerioReq("http://www.urbandictionary.com/", (err, $) => {
-      word = ($(".word").first().text());
-      meaning = ($(".meaning").first().text());
-      example = ($(".example").first().text());
-      // => Word of the day
-  });
-}
